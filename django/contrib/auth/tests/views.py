@@ -13,6 +13,7 @@ from django.core import mail
 from django.core.urlresolvers import reverse
 from django.http import QueryDict
 
+
 class AuthViewsTestCase(TestCase):
     """
     Helper base class for all the follow test cases.
@@ -44,6 +45,29 @@ class AuthViewsTestCase(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response['Location'].endswith(settings.LOGIN_REDIRECT_URL))
         self.assertTrue(SESSION_KEY in self.client.session)
+
+
+class AuthViewNamedURLTests(AuthViewsTestCase):
+    urls = 'django.contrib.auth.urls'
+
+    def test_named_urls(self):
+        "Named URLs should be reversible"
+        expected_named_urls = [
+            ('login', [], {}),
+            ('logout', [], {}),
+            ('password_change', [], {}),
+            ('password_change_done', [], {}),
+            ('password_reset', [], {}),
+            ('password_reset_done', [], {}),
+            ('password_reset_confirm', [], {
+                'uidb36': 'aaaaaaa',
+                'token': '1111-aaaaa',
+            }),
+            ('password_reset_complete', [], {}),
+        ]
+        for name, args, kwargs in expected_named_urls:
+            self.assert_(reverse(name, args=args, kwargs=kwargs))
+
 
 class PasswordResetTest(AuthViewsTestCase):
 
